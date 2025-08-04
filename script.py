@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import os
 
-client = OpenAI(api_key=os.getenv("client_API_KEY"))
+load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # --- Scraper ---
 def fetch_sciencedaily_articles(category_url, max_articles=10):
@@ -90,7 +91,7 @@ categories = {
 }
 
 selected_category = st.selectbox("Select a category", list(categories.keys()))
-num_articles = st.slider("Number of articles", 1, 10, 5)
+num_articles = st.slider("Number of articles", 1, 5, 3)
 
 if st.button("Fetch Articles and Generate Images"):
     with st.spinner("Fetching articles..."):
