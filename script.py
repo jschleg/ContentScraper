@@ -2,13 +2,11 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-import openai
 from dotenv import load_dotenv
+from openai import OpenAI
 import os
 
-# --- Load API key ---
-load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("client_API_KEY"))
 
 # --- Scraper ---
 def fetch_sciencedaily_articles(category_url, max_articles=10):
@@ -37,11 +35,11 @@ def fetch_sciencedaily_articles(category_url, max_articles=10):
 
 def generate_content_idea(title, summary):
     try:
-        response = openai.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a content strategist who creates engaging content ideas based on scientific articles."},
-                {"role": "user", "content": f"Title: {title}\n\nSummary: {summary}\n\nCome up with a creative content idea (1–2 sentences). Content idea must be optimized for image creating AI with dall-e-3. Used for social media posts"}
+                {"role": "user", "content": f"Title: {title}\n\nSummary: {summary}\n\nCome up with a creative content idea (1–2 sentences). Content idea must be optimized for image creating AI with dall-e-3. Used for social media posts. Important: No text on post!"}
             ],
             temperature=0.7,
             max_tokens=100
@@ -65,7 +63,7 @@ def generate_prompt(title, summary):
 def generate_image_for_article(title, summary, size="1024x1024"):
     prompt = generate_prompt(title, summary)
     try:
-        response = openai.images.generate(
+        response = client.images.generate(
             model="dall-e-3",
             prompt=prompt,
             n=1,
