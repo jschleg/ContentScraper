@@ -53,7 +53,7 @@ def generate_prompt(title, summary):
     return f"""Scientific illustration based on the following concept:
             \n\n{content_idea} 
             \n\nImportant:
-            \nDo not use Text!
+            \nNO TEXT ON OUTPUT IMAGE!!!
             \nMake as realistic looking as possible.
             \nSafe route, no funky stuff
             \nUsed for social media posts
