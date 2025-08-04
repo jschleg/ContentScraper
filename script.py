@@ -25,11 +25,12 @@ def fetch_sciencedaily_articles(category_url, max_articles=10):
         link = "https://www.sciencedaily.com" + tag.get("href")
         summary_tag = tag.find_parent("div").find_next_sibling("div", class_="latest-summary")
         summary = summary_tag.get_text(strip=True) if summary_tag else ""
+        
 
         articles.append({
             "title": title,
             "link": link,
-            "summary": summary
+            "summary": summary,
         })
 
     return None, articles
@@ -51,18 +52,15 @@ def generate_content_idea(title, summary):
 
 def generate_prompt(title, summary):
     content_idea = generate_content_idea(title, summary)
-    return f"""Scientific illustration based on the following concept:
-            \n\n{content_idea} 
-            \n\nImportant:
-            \nNO TEXT ON OUTPUT IMAGE!!!
-            \nMake as realistic looking as possible.
-            \nSafe route, no funky stuff
-            \nUsed for social media posts
-            """
+    return (
+        f"Scientific illustration based on the following concept: {content_idea} "
+        f"Important: NO TEXT ON OUTPUT IMAGE!!! Make as realistic looking as possible. "
+        f"Safe route, no funky stuff. Used for social media posts."
+    )
 
 
-def generate_image_for_article(title, summary, size="1024x1024"):
-    prompt = generate_prompt(title, summary)
+
+def generate_image_for_article(title, prompt, size="1024x1024"):
     try:
         response = client.images.generate(
             model="dall-e-3",
@@ -108,8 +106,14 @@ if st.button("Fetch Articles and Generate Images"):
             st.markdown(f"### [{article['title']}]({article['link']})")
             st.write(article["summary"])
 
+            with st.spinner("Generating Content Idea..."):
+                prompt = generate_prompt(article["title"], article["summary"])
+
+            st.markdown("**Used Prompt:**")
+            st.markdown(">" + prompt)
+
             with st.spinner("Generating image..."):
-                image_url = generate_image_for_article(article["title"], article["summary"])
+                image_url = generate_image_for_article(article["title"], prompt)
 
             article["image_url"] = image_url
 
@@ -117,6 +121,9 @@ if st.button("Fetch Articles and Generate Images"):
                 st.image(image_url, width=512)
             else:
                 st.info("No image available.")
+
+      
+            
 
             st.markdown("---")
 
